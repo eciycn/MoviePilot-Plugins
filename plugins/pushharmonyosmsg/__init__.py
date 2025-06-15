@@ -11,7 +11,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件名称
     plugin_name = "鸿蒙Next消息推送"
     # 插件描述
-    plugin_desc = "借助MeoW应用实现鸿蒙原生Push推送"
+    plugin_desc = "借助MeoW应用实现鸿蒙原生Push推送。"
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
@@ -21,7 +21,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 作者主页
     author_url = "https://github.com/eciycn/MoviePilot-Plugins"
     # 插件配置项ID前缀
-    plugin_config_prefix = "pushharmonyos_"
+    plugin_config_prefix = "pushharmonyosmsg_"
     # 加载顺序
     plugin_order = 29
     # 可使用的用户级别
