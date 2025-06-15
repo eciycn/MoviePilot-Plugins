@@ -606,16 +606,6 @@
       "v1.2": "增加群组编码,支持发送群组消息"
     }
   },
-  "PushHarmonyOsMsg": {
-    "name": "鸿蒙Next消息推送",
-    "description": "借助MeoW应用实现鸿蒙原生Push推送。",
-    "labels": "消息通知",
-    "version": "1.0",
-    "icon": "Pushplus_A.png",
-    "author": "eciycn",
-    "level": 1,
-    "v2": true
-  },
   "DownloadSiteTag": {
     "name": "下载任务分类与标签",
     "description": "自动给下载任务分类与打站点标签、剧集名称标签",
@@ -1028,5 +1018,15 @@
     "history": {
       "v1.3": "消息限流发送，以缓解IYUU服务器压力"
     }
-  }
+  },
+  "PushHarmonyOsMsg": {
+    "name": "鸿蒙Next消息推送",
+    "description": "借助MeoW应用实现鸿蒙原生Push推送。",
+    "labels": "消息通知",
+    "version": "1.0",
+    "icon": "Pushplus_A.png",
+    "author": "eciycn",
+    "level": 1,
+    "v2": true
+  },
 }
