@@ -465,5 +465,17 @@
     "history": {
       "v1.0": "新增LexiAnnot"
     }
-  }
+  },
+  "PushHarmonyOsMsg2": {
+    "name": "鸿蒙Next消息推送2",
+    "description": "鸿蒙Next消息推送2",
+    "labels": "工具",
+    "version": "1.0",
+    "icon": "LexiAnnot.png",
+    "author": "xxx",
+    "level": 1,
+    "history": {
+      "v1.0": "新增工具"
+    }
+  },
 }
