@@ -41,7 +41,7 @@ class PushHarmonyOsMsg(_PluginBase):
             self._apikey = config.get("apikey")
 
     def get_state(self) -> bool:
-        return self._enabled and (True if self._token else False)
+        return self._enabled
 
     @staticmethod
     def get_command() -> List[Dict[str, Any]]:
