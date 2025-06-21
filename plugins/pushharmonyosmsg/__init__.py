@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.46"
+    plugin_version = "1.47"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -217,7 +217,7 @@ class PushHarmonyOsMsg(_PluginBase):
                 sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(text))
 
                 #logger.info("sc_url %s" % )
-                logger.error(f"sc_url，{str(sc_url)}")
+                logger.error(f"sc_url, {str(sc_url)}")
 
                 res = RequestUtils().get_res(sc_url)
                 if res and res.status_code == 200:
