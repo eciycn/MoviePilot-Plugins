@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.44"
+    plugin_version = "1.45"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -209,7 +209,7 @@ class PushHarmonyOsMsg(_PluginBase):
                 logger.info(f"消息类型 {msg_type.value} 未开启消息发送")
                 continue
 
-                logger.info(f"YSL:title: {title}; text: {title} ")
+            logger.info(f"YSL:title: {title}; text: {title} ")
 
             # 尝试发送消息
             try:
