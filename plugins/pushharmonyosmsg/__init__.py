@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.47"
+    plugin_version = "1.48"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -209,12 +209,13 @@ class PushHarmonyOsMsg(_PluginBase):
                 logger.info(f"消息类型 {msg_type.value} 未开启消息发送")
                 continue
 
-            logger.info(f"YSL:title: {title}; text: {text} ")
+            logger.info(f"title: {title}; text: {text} ")
 
             # 尝试发送消息
             try:
-                #sc_url = "https://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))     
-                sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(text))
+                #sc_url = "https://iyuu.cn/%s.send?%s" % (self._token, urlencode({"text": title, "desp": text}))    
+                safe_text = text if text is not None else ""  # 将 None 转为空字符串 
+                sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
 
                 #logger.info("sc_url %s" % )
                 logger.error(f"sc_url, {str(sc_url)}")
