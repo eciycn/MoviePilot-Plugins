@@ -22,7 +22,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "0.6"
+    plugin_version = "0.7"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -218,7 +218,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
             try:
                 # sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
                 sc_url = "http://api.chuckfang.com/%s" % (self._token)
-                msg_str = "%s %s" % (title, text)
+                msg_str = title if not text else f"{title}\n{text}"
                 logger.info(f"msg_str: {msg_str}")
 
                 # 构造请求参数
