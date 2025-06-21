@@ -2,7 +2,6 @@ import threading
 from queue import Queue
 from time import time, sleep
 from typing import Any, List, Dict, Tuple
-from urllib.parse import quote, urlencode
 import json
 
 from app.core.event import eventmanager, Event
@@ -14,13 +13,13 @@ from app.utils.http import RequestUtils
 
 class PushHarmonyOsMsgV2(_PluginBase):
     # 插件名称
-    plugin_name = "鸿蒙Next消息推送V2"
+    plugin_name = "鸿蒙Next消息推送v2"
     # 插件描述
     plugin_desc = "借助MeoW应用实现鸿蒙原生Push推送。"
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "0.1"
+    plugin_version = "0.2"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -36,8 +35,8 @@ class PushHarmonyOsMsgV2(_PluginBase):
     _enabled = False
     _token = None
     _msgtypes = []
-    # API 端点 URL（假设为 /send）
-    api_endpoint = "http://api.chuckfang.com/send"
+    # API 基础 URL（token将拼接到路径中）
+    base_url = "http://api.chuckfang.com/"
 
     # 消息处理线程
     processing_thread = None
@@ -56,8 +55,6 @@ class PushHarmonyOsMsgV2(_PluginBase):
             self._enabled = config.get("enabled")
             self._token = config.get("token")
             self._msgtypes = config.get("msgtypes") or []
-            # 从配置中获取API端点（可选）
-            self.api_endpoint = config.get("api_endpoint", self.api_endpoint)
 
             if self._enabled and self._token:
                 # 启动处理队列的后台线程
@@ -66,7 +63,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
                 self.processing_thread.start()
 
     def get_state(self) -> bool:
-        return self._enabled and (True if self._token else False)
+        return self._enabled and self._token
 
     @staticmethod
     def get_command() -> List[Dict[str, Any]]:
@@ -76,16 +73,10 @@ class PushHarmonyOsMsgV2(_PluginBase):
         pass
 
     def get_form(self) -> Tuple[List[dict], Dict[str, Any]]:
-        """
-        拼装插件配置页面，需要返回两块数据：1、页面配置；2、数据结构
-        """
-        # 编历 NotificationType 枚举，生成消息类型选项
+        """拼装插件配置页面"""
         MsgTypeOptions = []
         for item in NotificationType:
-            MsgTypeOptions.append({
-                "title": item.value,
-                "value": item.name
-            })
+            MsgTypeOptions.append({"title": item.value, "value": item.name})
         return [
             {
                 'component': 'VForm',
@@ -95,18 +86,9 @@ class PushHarmonyOsMsgV2(_PluginBase):
                         'content': [
                             {
                                 'component': 'VCol',
-                                'props': {
-                                    'cols': 12,
-                                    'md': 6
-                                },
+                                'props': {'cols': 12, 'md': 6},
                                 'content': [
-                                    {
-                                        'component': 'VSwitch',
-                                        'props': {
-                                            'model': 'enabled',
-                                            'label': '启用插件',
-                                        }
-                                    }
+                                    {'component': 'VSwitch', 'props': {'model': 'enabled', 'label': '启用插件'}}
                                 ]
                             }
                         ]
@@ -116,24 +98,14 @@ class PushHarmonyOsMsgV2(_PluginBase):
                         'content': [
                             {
                                 'component': 'VCol',
-                                'props': {
-                                    'cols': 12
-                                },
+                                'props': {'cols': 12},
                                 'content': [
                                     {
                                         'component': 'VTextField',
                                         'props': {
                                             'model': 'token',
-                                            'label': 'ID',
-                                            'placeholder': 'IYUUxxx',
-                                        }
-                                    },
-                                    {
-                                        'component': 'VTextField',
-                                        'props': {
-                                            'model': 'api_endpoint',
-                                            'label': 'API 端点',
-                                            'placeholder': 'http://api.chuckfang.com/send',
+                                            'label': 'Token',
+                                            'placeholder': '请输入Token（如IYUUxxx）'
                                         }
                                     }
                                 ]
@@ -145,9 +117,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
                         'content': [
                             {
                                 'component': 'VCol',
-                                'props': {
-                                    'cols': 12
-                                },
+                                'props': {'cols': 12},
                                 'content': [
                                     {
                                         'component': 'VSelect',
@@ -168,7 +138,6 @@ class PushHarmonyOsMsgV2(_PluginBase):
         ], {
             "enabled": False,
             'token': '',
-            'api_endpoint': 'http://api.chuckfang.com/send',
             'msgtypes': []
         }
 
@@ -177,34 +146,27 @@ class PushHarmonyOsMsgV2(_PluginBase):
 
     @eventmanager.register(EventType.NoticeMessage)
     def send(self, event: Event):
-        """
-        消息发送事件，将消息加入队列
-        """
+        """消息发送事件，将消息加入队列"""
         if not self.get_state() or not event.event_data:
             return
 
         msg_body = event.event_data
-        # 验证消息的有效性
         if not msg_body.get("title") and not msg_body.get("text"):
             logger.warn("标题和内容不能同时为空")
             return
 
-        # 将消息加入队列
         self.message_queue.put(msg_body)
         logger.info("消息已加入队列等待发送")
 
     def process_queue(self):
-        """
-        处理队列中的消息，按间隔时间发送
-        """
+        """处理队列中的消息，按间隔时间发送"""
         while True:
             if self.__event.is_set():
                 logger.info("消息发送线程正在退出...")
                 break
-            # 获取队列中的下一条消息
             msg_body = self.message_queue.get()
 
-            # 检查是否满足发送间隔时间
+            # 检查发送间隔
             current_time = time()
             time_since_last_send = current_time - self.last_send_time
             if time_since_last_send < self.send_interval:
@@ -214,32 +176,40 @@ class PushHarmonyOsMsgV2(_PluginBase):
             channel = msg_body.get("channel")
             if channel:
                 continue
-            msg_type: NotificationType = msg_body.get("type")
+            msg_type = msg_body.get("type")
             title = msg_body.get("title")
             text = msg_body.get("text")
 
-            # 检查消息类型是否已启用
             if msg_type and self._msgtypes and msg_type.name not in self._msgtypes:
-                logger.info(f"消息类型 {msg_type.value} 未开启消息发送")
+                logger.info(f"消息类型 {msg_type.value} 未开启发送")
+                self.message_queue.task_done()
                 continue
 
-            logger.info(f"title: {title}; text: {text}")
+            logger.info(f"准备发送消息 - 标题: {title}, 内容: {text[:30]}...")
 
-            # 尝试发送消息
             try:
-                safe_text = text if text is not None else ""  # 将 None 转为空字符串
+                # 构造完整URL（token拼接到路径中）
+                api_url = f"{self.base_url}{self._token}"
                 
-                # 构造 POST 请求体（JSON 格式）
-                payload = {
-                    "token": self._token,
-                    "title": title,
-                    "text": safe_text
+                # 构造请求体（确保title和msg不为空）
+                safe_title = title if title else ""
+                safe_text = text if text else ""
+                if not safe_title and not safe_text:
+                    logger.error("标题和内容均为空，无法发送")
+                    self.message_queue.task_done()
+                    continue
+
+                logger.info(f"title: {safe_title}; text: {safe_text}")
+
+                post_data = {
+                    "title": safe_title,
+                    "msg": safe_text
                 }
                 
-                # 发送 POST 请求
+                # 发送POST请求
                 res = RequestUtils().post_res(
-                    url=self.api_endpoint,
-                    json=payload,
+                    url=api_url,
+                    json=post_data,
                     headers={"Content-Type": "application/json"}
                 )
                 
@@ -247,33 +217,26 @@ class PushHarmonyOsMsgV2(_PluginBase):
                 if res and res.status_code == 200:
                     try:
                         ret_json = res.json()
-                        errno = ret_json.get('errcode', 0)
-                        error = ret_json.get('errmsg', '')
-                        
-                        if errno == 0:
+                        if ret_json.get("status") == 200:
                             logger.info("消息发送成功")
-                            # 更新上次发送时间
                             self.last_send_time = time()
                         else:
-                            logger.warn(f"消息发送失败，错误码：{errno}，错误原因：{error}")
+                            err_msg = ret_json.get("msg", "未知错误")
+                            logger.warn(f"发送失败: {err_msg}")
                     except json.JSONDecodeError:
-                        logger.error("响应不是合法的JSON格式")
-                        logger.info("消息发送成功（假设200状态码表示成功）")
+                        logger.error("响应非JSON格式，但状态码200，假设发送成功")
                         self.last_send_time = time()
                 elif res and res.status_code == 400:
-                    logger.info("参数错误")
+                    logger.info("参数错误（如内容为空）")
                 elif res and res.status_code == 500:
                     logger.info("服务器错误")
                 else:
-                    logger.warn("消息发送失败，未获取到返回信息")
-            except Exception as msg_e:
-                logger.error(f"消息发送失败，{str(msg_e)}")
-
-            # 标记任务完成
-            self.message_queue.task_done()
+                    logger.warn(f"发送失败，状态码: {res.status_code if res else '无响应'}")
+            except Exception as e:
+                logger.error(f"发送异常: {str(e)}")
+            finally:
+                self.message_queue.task_done()
 
     def stop_service(self):
-        """
-        退出插件
-        """
+        """退出插件"""
         self.__event.set()
