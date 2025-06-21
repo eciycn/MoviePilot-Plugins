@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.48"
+    plugin_version = "1.49"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -222,19 +222,15 @@ class PushHarmonyOsMsg(_PluginBase):
 
                 res = RequestUtils().get_res(sc_url)
                 if res and res.status_code == 200:
-                    ret_json = res.json()
-                    errno = ret_json.get('errcode')
-                    error = ret_json.get('errmsg')
-                    if errno == 0:
-                        logger.info("消息发送成功")
-                        # 更新上次发送时间
-                        self.last_send_time = time()
-                    else:
-                        logger.warn(f"消息发送失败，错误码：{errno}，错误原因：{error}")
-                elif res is not None:
-                    logger.warn(f"消息发送失败，错误码：{res.status_code}，错误原因：{res.reason}")
+                    logger.info("消息发送成功")
+                    # 更新上次发送时间
+                    self.last_send_time = time()
+                elif res and res.status_code == 400:
+                    logger.info("MeoW参数错误")
+                elif res and res.status_code == 500:
+                    logger.info("MeoW服务器错误")
                 else:
-                    logger.warn("消息发送失败，未获取到返回信息")
+                    logger.warn("MeoW消息发送失败，未获取到返回信息")
             except Exception as msg_e:
                 logger.error(f"消息发送失败，{str(msg_e)}")
 
