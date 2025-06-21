@@ -14,9 +14,9 @@ from app.schemas.types import EventType, NotificationType
 from app.utils.http import RequestUtils
 
 
-class PushHarmonyOsMsgV2(_PluginBase):
+class PushHarmonyOsMsg(_PluginBase):
     # 插件名称
-    plugin_name = "鸿蒙Next消息推送V2"
+    plugin_name = "鸿蒙Next消息推送"
     # 插件描述
     plugin_desc = "借助MeoW应用实现鸿蒙原生Push推送。"
     # 插件图标
@@ -28,7 +28,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
     # 作者主页
     author_url = "https://github.com/eciycn/MoviePilot-Plugins"
     # 插件配置项ID前缀
-    plugin_config_prefix = "pushharmonyosmsgv2_"
+    plugin_config_prefix = "pushharmonyosmsg_"
     # 加载顺序
     plugin_order = 29
     # 可使用的用户级别
@@ -225,8 +225,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
                 # 构造请求参数
                 payload = {
                     "title": title_new,       # 消息标题
-                    "msg": text_new,       # 消息内容
-                    "url": "http://yangshunlong.top:3000/",  # 跳转链接
+                    "msg": text_new       # 消息内容
                 }
                 # 请求头设置，指定发送JSON格式数据
                 headers = {

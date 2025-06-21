@@ -1,8 +1,11 @@
 import threading
+import requests
+import json
 from queue import Queue
 from time import time, sleep
 from typing import Any, List, Dict, Tuple
 from urllib.parse import quote, urlencode
+
 
 from app.core.event import eventmanager, Event
 from app.log import logger
@@ -19,7 +22,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.53"
+    plugin_version = "0.9"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -213,25 +216,43 @@ class PushHarmonyOsMsg(_PluginBase):
 
             # 尝试发送消息
             try:
-                safe_text = text if text is not None else ""  # 将 None 转为空字符串 
                 # sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
-                sc_url = "http://api.chuckfang.com/%s/%s" % (self._token, quote(title))
+                sc_url = "http://api.chuckfang.com/%s" % (self._token)
+                #msg_str = title if not text else f"{title}\n{text}"
+                title_new = "[MP消息]" + title
+                text_new = title if not text else text
 
-                logger.info(f"sc_url, {str(sc_url)}")
+                # 构造请求参数
+                payload = {
+                    "title": title_new,       # 消息标题
+                    "msg": text_new,       # 消息内容
+                    "url": "http://yangshunlong.top:3000/",  # 跳转链接
+                }
+                # 请求头设置，指定发送JSON格式数据
+                headers = {
+                    "Content-Type": "application/json"
+                }
 
-                res = RequestUtils().get_res(sc_url)
-                if res and res.status_code == 200:
-                    logger.info("消息发送成功")
-                    # 更新上次发送时间
-                    self.last_send_time = time()
-                elif res and res.status_code == 400:
-                    logger.info("MeoW参数错误")
-                elif res and res.status_code == 500:
-                    logger.info("MeoW服务器错误")
+                # 发送POST请求
+                response = requests.post(sc_url, data=json.dumps(payload), headers=headers)
+                
+                # 解析响应结果
+                result = response.json()
+
+                # 打印响应状态和消息
+                print(f"请求状态码: {response.status_code}")
+                print(f"响应内容: {result}")
+
+                # 根据状态码判断请求是否成功
+                if response.status_code == 200:
+                    print("消息发送成功!")
                 else:
-                    logger.warn("MeoW消息发送失败，未获取到返回信息")
-            except Exception as msg_e:
-                logger.error(f"消息发送失败，{str(msg_e)}")
+                    print(f"消息发送失败: {result.get('msg', '未知错误')}")
+
+            except requests.exceptions.RequestException as e:
+                print(f"请求异常: {e}")
+            except json.JSONDecodeError as e:
+                print(f"响应解析异常: {e}")
 
             # 标记任务完成
             self.message_queue.task_done()
