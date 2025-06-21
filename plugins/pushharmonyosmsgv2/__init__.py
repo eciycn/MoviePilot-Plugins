@@ -22,7 +22,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "0.5"
+    plugin_version = "0.6"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -216,15 +216,16 @@ class PushHarmonyOsMsgV2(_PluginBase):
 
             # 尝试发送消息
             try:
-                safe_text = text if text is not None else ""  # 将 None 转为空字符串 
                 # sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
                 sc_url = "http://api.chuckfang.com/%s" % (self._token)
+                msg_str = "%s %s" % (title, text)
+                logger.info(f"msg_str: {msg_str}")
 
                 # 构造请求参数
                 payload = {
-                    "title": title,       # 消息标题
-                    "msg": text,       # 消息内容
-                    "url": "www.baidu.com"  # 跳转链接
+                    "title": "MoviePilot",       # 消息标题
+                    "msg": msg_str,       # 消息内容
+                    "url": "https://www.baidu.com",  # 跳转链接
                 }
                 # 请求头设置，指定发送JSON格式数据
                 headers = {
