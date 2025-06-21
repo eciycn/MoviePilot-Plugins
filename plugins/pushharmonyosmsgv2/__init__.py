@@ -22,7 +22,7 @@ class PushHarmonyOsMsgV2(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "0.3"
+    plugin_version = "0.5"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -236,11 +236,11 @@ class PushHarmonyOsMsgV2(_PluginBase):
                 
                 # 解析响应结果
                 result = response.json()
-                
+
                 # 打印响应状态和消息
                 print(f"请求状态码: {response.status_code}")
                 print(f"响应内容: {result}")
-                
+
                 # 根据状态码判断请求是否成功
                 if response.status_code == 200:
                     print("消息发送成功!")
