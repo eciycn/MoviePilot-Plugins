@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.51"
+    plugin_version = "1.52"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -215,7 +215,7 @@ class PushHarmonyOsMsg(_PluginBase):
             try:
                 safe_text = text if text is not None else ""  # 将 None 转为空字符串 
                 sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
-                sc_url_new = sc_url[:1500]
+                sc_url_new = sc_url[:800]
                 logger.info(f"sc_url, {str(sc_url)}")
                 logger.info(f"sc_url_new, {str(sc_url_new)}")
 
