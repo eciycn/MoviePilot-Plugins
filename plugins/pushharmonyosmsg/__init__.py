@@ -120,7 +120,7 @@ class PushHarmonyOsMsg(_PluginBase):
                                         'props': {
                                             'model': 'token',
                                             'label': 'ID',
-                                            'placeholder': 'IYUUxxx',
+                                            'placeholder': 'MeoW Id',
                                         }
                                     }
                                 ]
