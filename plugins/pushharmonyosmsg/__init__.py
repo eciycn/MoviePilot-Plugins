@@ -19,7 +19,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.42"
+    plugin_version = "1.43"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -215,7 +215,8 @@ class PushHarmonyOsMsg(_PluginBase):
                 #sc_url = "http://api.chuckfang.com/%s/%s" % (self._token, urlencode({"text": title, "desp": text}))
 				#sc_url = "http://api.chuckfang.com/%s/%s" % (self._token, urlencode({"text": title, "desp": text}))
 				#sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, urlencode("text": title), urlencode("desp": text))
-                sc_url = f"http://api.chuckfang.com/{self._token}/{quote(title)}/{quote(text)}"
+                #sc_url = f"http://api.chuckfang.com/{self._token}/{quote(title)}/{quote(text)}"
+                sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(text))
                 #sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, urlencode({"text": title}),urlencode({"desp": text}))
 
                 #logger.info("sc_url %s" % )
