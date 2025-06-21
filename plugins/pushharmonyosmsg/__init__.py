@@ -22,7 +22,7 @@ class PushHarmonyOsMsg(_PluginBase):
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "0.9"
+    plugin_version = "1.0"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
@@ -225,8 +225,7 @@ class PushHarmonyOsMsg(_PluginBase):
                 # 构造请求参数
                 payload = {
                     "title": title_new,       # 消息标题
-                    "msg": text_new,       # 消息内容
-                    "url": "http://yangshunlong.top:3000/",  # 跳转链接
+                    "msg": text_new       # 消息内容
                 }
                 # 请求头设置，指定发送JSON格式数据
                 headers = {
