@@ -3,6 +3,7 @@ from queue import Queue
 from time import time, sleep
 from typing import Any, List, Dict, Tuple
 from urllib.parse import quote, urlencode
+import json
 
 from app.core.event import eventmanager, Event
 from app.log import logger
@@ -11,21 +12,21 @@ from app.schemas.types import EventType, NotificationType
 from app.utils.http import RequestUtils
 
 
-class PushHarmonyOsMsg(_PluginBase):
+class PushHarmonyOsMsgV2(_PluginBase):
     # 插件名称
-    plugin_name = "鸿蒙Next消息推送"
+    plugin_name = "鸿蒙Next消息推送V2"
     # 插件描述
     plugin_desc = "借助MeoW应用实现鸿蒙原生Push推送。"
     # 插件图标
     plugin_icon = "Pushplus_A.png"
     # 插件版本
-    plugin_version = "1.50"
+    plugin_version = "0.1"
     # 插件作者
     plugin_author = "eciycn"
     # 作者主页
     author_url = "https://github.com/eciycn/MoviePilot-Plugins"
     # 插件配置项ID前缀
-    plugin_config_prefix = "pushharmonyosmsg_"
+    plugin_config_prefix = "pushharmonyosmsgv2_"
     # 加载顺序
     plugin_order = 29
     # 可使用的用户级别
@@ -35,6 +36,8 @@ class PushHarmonyOsMsg(_PluginBase):
     _enabled = False
     _token = None
     _msgtypes = []
+    # API 端点 URL（假设为 /send）
+    api_endpoint = "http://api.chuckfang.com/send"
 
     # 消息处理线程
     processing_thread = None
@@ -53,6 +56,8 @@ class PushHarmonyOsMsg(_PluginBase):
             self._enabled = config.get("enabled")
             self._token = config.get("token")
             self._msgtypes = config.get("msgtypes") or []
+            # 从配置中获取API端点（可选）
+            self.api_endpoint = config.get("api_endpoint", self.api_endpoint)
 
             if self._enabled and self._token:
                 # 启动处理队列的后台线程
@@ -122,6 +127,14 @@ class PushHarmonyOsMsg(_PluginBase):
                                             'label': 'ID',
                                             'placeholder': 'IYUUxxx',
                                         }
+                                    },
+                                    {
+                                        'component': 'VTextField',
+                                        'props': {
+                                            'model': 'api_endpoint',
+                                            'label': 'API 端点',
+                                            'placeholder': 'http://api.chuckfang.com/send',
+                                        }
                                     }
                                 ]
                             }
@@ -155,6 +168,7 @@ class PushHarmonyOsMsg(_PluginBase):
         ], {
             "enabled": False,
             'token': '',
+            'api_endpoint': 'http://api.chuckfang.com/send',
             'msgtypes': []
         }
 
@@ -213,21 +227,45 @@ class PushHarmonyOsMsg(_PluginBase):
 
             # 尝试发送消息
             try:
-                safe_text = text if text is not None else ""  # 将 None 转为空字符串 
-                sc_url = "http://api.chuckfang.com/%s/%s/%s" % (self._token, quote(title), quote(safe_text))
-                logger.info(f"sc_url, {str(sc_url)}")
-
-                res = RequestUtils().get_res(sc_url)
+                safe_text = text if text is not None else ""  # 将 None 转为空字符串
+                
+                # 构造 POST 请求体（JSON 格式）
+                payload = {
+                    "token": self._token,
+                    "title": title,
+                    "text": safe_text
+                }
+                
+                # 发送 POST 请求
+                res = RequestUtils().post_res(
+                    url=self.api_endpoint,
+                    json=payload,
+                    headers={"Content-Type": "application/json"}
+                )
+                
+                # 处理响应
                 if res and res.status_code == 200:
-                    logger.info("消息发送成功")
-                    # 更新上次发送时间
-                    self.last_send_time = time()
+                    try:
+                        ret_json = res.json()
+                        errno = ret_json.get('errcode', 0)
+                        error = ret_json.get('errmsg', '')
+                        
+                        if errno == 0:
+                            logger.info("消息发送成功")
+                            # 更新上次发送时间
+                            self.last_send_time = time()
+                        else:
+                            logger.warn(f"消息发送失败，错误码：{errno}，错误原因：{error}")
+                    except json.JSONDecodeError:
+                        logger.error("响应不是合法的JSON格式")
+                        logger.info("消息发送成功（假设200状态码表示成功）")
+                        self.last_send_time = time()
                 elif res and res.status_code == 400:
-                    logger.info("MeoW参数错误")
+                    logger.info("参数错误")
                 elif res and res.status_code == 500:
-                    logger.info("MeoW服务器错误")
+                    logger.info("服务器错误")
                 else:
-                    logger.warn("MeoW消息发送失败，未获取到返回信息")
+                    logger.warn("消息发送失败，未获取到返回信息")
             except Exception as msg_e:
                 logger.error(f"消息发送失败，{str(msg_e)}")
 
