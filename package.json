@@ -1023,7 +1023,7 @@
     "name": "鸿蒙Next消息推送",
     "description": "借助MeoW应用实现鸿蒙原生Push推送。",
     "labels": "消息通知",
-    "version": "1.43",
+    "version": "1.44",
     "icon": "Pushplus_A.png",
     "author": "eciycn",
     "level": 1,
